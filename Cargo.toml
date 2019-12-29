@@ -1,0 +1,25 @@
+[package]
+name = "lot"
+version = "0.1.0"
+authors = ["Taylor Skinner <tskinn12@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+actix-files = "0.2.1"
+actix-rt = "1.0.0"
+actix-web = "2.0.0"
+failure = "0.1.5"
+failure_derive = "0.1.5"
+serde = "1.0.98"
+serde_json = "1.0"
+structopt = "0.3.5"
+
+[[bin]]
+name = "server"
+path = "src/main.rs"
+
+[[bin]]
+name = "util"
+path = "src/utility.rs"
