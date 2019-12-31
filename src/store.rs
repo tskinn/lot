@@ -32,9 +32,17 @@ impl Store {
         Ok(())
     }
 
-    pub fn add_episode(&self, path: PathBuf, series: String, season: usize) -> std::io::Result<()> {
+    pub fn add_series(&mut self, series: String) -> std::io::Result<()> {
+        Ok(())
+    }
+
+    pub fn add_season(&mut self, series: String, season: usize) -> std::io::Result<()> {
+        Ok(())
+    }
+
+    pub fn add_episode(&mut self, path: PathBuf, series: String, season: usize) -> std::io::Result<()> {
         let episode = Episode{
-            series: series,
+            series: series.clone(),
             season: season,
             file: path.to_str().unwrap_or("").to_string(),
             path: path.to_str().unwrap_or("").to_string(),
@@ -44,16 +52,18 @@ impl Store {
   
         let filename = path.file_stem().ok_or(Error::new(ErrorKind::Other, "failed to get stem"))?;
         let filename = filename.to_str().ok_or(Error::new(ErrorKind::Other, "failed to change ostr to str"))?;
-        let filename_usize = filename.parse::<usize>().map_err(|e| e.into())?;
+        let filename_usize = filename.parse::<usize>().unwrap();
 
-        match self.series.get(&series) {
+        match self.series.get_mut(&series) {
             Some(seasons) => {
                 // TODO check if season exists maybe
                 // TODO insert episode into season
-                let mut season_real = seasons.get(&season).ok_or(Error::new(ErrorKind::Other, "aanother crappy error failed to get season"))?;
+                let mut season_real = seasons.get_mut(&season).ok_or(Error::new(ErrorKind::Other, "aanother crappy error failed to get season"))?;
                 season_real.insert(1, episode);
             },
-            None => {}
+            None => {
+               self.series.insert(series, HashMap::new());
+            }
         }
         Ok(())
     }    

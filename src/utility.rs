@@ -44,9 +44,9 @@ enum MovieAction {
 
 #[derive(StructOpt, Debug)]
 struct Episode {
-    #[structopt(short, long)]
-    title: String,
-    #[structopt(short, long)]
+    #[structopt(long)]
+    series: String,
+    #[structopt(long)]
     season: usize,
     #[structopt(subcommand)]    
     action: EpisodeAction
@@ -57,14 +57,13 @@ enum EpisodeAction {
     Add {
         #[structopt(parse(from_os_str))]
         episode_paths: Vec<PathBuf>
-    }
+    },
+    List
 }
 
 fn main() {
     let args = Util::from_args();
     println!("{:#?}", args);
-    let json_path = args.json_path;
-    println!("{:?}", json_path);
     match args.command {
         SubCommand::Movie(movie) => {
             match movie.action {
@@ -72,8 +71,8 @@ fn main() {
                     println!("{:?}", movie_paths);
                 },
                 MovieAction::List => {
-                    let store = Store::from_file(args.json_path);
-                    println!("{:#?}", store.movies);
+                    let store = Store::from_file(args.json_path).unwrap();
+                    println!("{:#?}", store);
                 }
             }
         },
@@ -81,6 +80,22 @@ fn main() {
             match episode.action {
                 EpisodeAction::Add{episode_paths} => {
                     println!("{:?}", episode_paths);
+                    let mut store = Store::from_file(args.json_path).unwrap();
+
+                    match store.add_episode(episode_paths.first().unwrap().to_path_buf(), episode.series, episode.season) {
+                        Ok(v) => {
+                            println!("{:?}", v);
+                            println!("how did this wokr");
+                        },
+                        Err(err) => {
+                            println!("wtf");
+                            println!("{}", err);
+                        }
+                    }
+                    println!("{:#?}", store);
+                },
+                EpisodeAction::List => {
+                    println!("hello");
                 }
             }
         }
