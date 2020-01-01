@@ -7,7 +7,7 @@ use std::path::PathBuf;
 mod models;
 mod store;
 
-use models::Store;
+use models::{MemoryVideoStore, VideoStore};
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "util")]
@@ -69,13 +69,14 @@ fn main() {
         SubCommand::Movie(movie) => {
             match movie.action {
                 MovieAction::Add{movie_paths} => {
-                    let mut store = Store::from_file(&json_path).unwrap();
-                    store.add_movie(movie_paths.first().unwrap().to_path_buf()).unwrap();
+                    let mut store = MemoryVideoStore::from_file(&json_path).unwrap();
+                    store::add_movie(movie_paths.first().unwrap().to_path_buf(), &mut store).unwrap();
+                    // store.add_movie(movie_paths.first().unwrap().to_path_buf()).unwrap();
                     store.to_file(&json_path).unwrap();
                     println!("{:?}", movie_paths);
                 },
                 MovieAction::List => {
-                    let store = Store::from_file(&json_path).unwrap();
+                    let store = MemoryVideoStore::from_file(&json_path).unwrap();
                     println!("{:#?}", store);
                 }
             }
@@ -84,10 +85,15 @@ fn main() {
             match episode.action {
                 EpisodeAction::Add{episode_paths} => {
                     println!("{:?}", episode_paths);
-                    let mut store = Store::from_file(&json_path).unwrap();
+                    let mut store = match MemoryVideoStore::from_file(&json_path) {
+                        Ok(store) => store,
+                        Err(_) => {
+                            MemoryVideoStore::new()
+                        }
+                    };
 
                     // TODO for loop over episode_paths
-                    match store.add_episode(episode_paths.first().unwrap().to_path_buf(), episode.series, episode.season) {
+                    match store::add_episode(episode_paths.first().unwrap().to_path_buf(), episode.series, episode.season, &mut store) {
                         Ok(_) => {
                             store.to_file(&json_path).unwrap();
                         },
@@ -98,8 +104,8 @@ fn main() {
                     println!("{:#?}", store);
                 },
                 EpisodeAction::List => {
-                    let store = Store::from_file(&json_path).unwrap();
-                    println!("{:#?}", store.series);
+                    let store = MemoryVideoStore::from_file(&json_path).unwrap();
+                    println!("{:#?}", store.episodes);
                 }
             }
         }

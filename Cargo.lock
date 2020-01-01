@@ -890,6 +890,7 @@ dependencies = [
  "actix-web",
  "failure",
  "failure_derive",
+ "http",
  "nanoid",
  "serde",
  "serde_json",
