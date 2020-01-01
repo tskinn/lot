@@ -15,6 +15,8 @@ pub struct Movie {
     pub file: String,
     pub path: String,
     pub mime: String,
+    pub title: String,
+    pub id: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -24,6 +26,7 @@ pub struct Episode {
     pub path: String,
     pub season: usize,
     pub series: String,
+    pub id: String,
 }
 
 // #[derive(Serialize, Deserialize)]

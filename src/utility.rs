@@ -63,15 +63,19 @@ enum EpisodeAction {
 
 fn main() {
     let args = Util::from_args();
+    let json_path = args.json_path.clone();
     println!("{:#?}", args);
     match args.command {
         SubCommand::Movie(movie) => {
             match movie.action {
                 MovieAction::Add{movie_paths} => {
+                    let mut store = Store::from_file(&json_path).unwrap();
+                    store.add_movie(movie_paths.first().unwrap().to_path_buf()).unwrap();
+                    store.to_file(&json_path).unwrap();
                     println!("{:?}", movie_paths);
                 },
                 MovieAction::List => {
-                    let store = Store::from_file(args.json_path).unwrap();
+                    let store = Store::from_file(&json_path).unwrap();
                     println!("{:#?}", store);
                 }
             }
@@ -80,22 +84,22 @@ fn main() {
             match episode.action {
                 EpisodeAction::Add{episode_paths} => {
                     println!("{:?}", episode_paths);
-                    let mut store = Store::from_file(args.json_path).unwrap();
+                    let mut store = Store::from_file(&json_path).unwrap();
 
+                    // TODO for loop over episode_paths
                     match store.add_episode(episode_paths.first().unwrap().to_path_buf(), episode.series, episode.season) {
-                        Ok(v) => {
-                            println!("{:?}", v);
-                            println!("how did this wokr");
+                        Ok(_) => {
+                            store.to_file(&json_path).unwrap();
                         },
                         Err(err) => {
-                            println!("wtf");
                             println!("{}", err);
                         }
                     }
                     println!("{:#?}", store);
                 },
                 EpisodeAction::List => {
-                    println!("hello");
+                    let store = Store::from_file(&json_path).unwrap();
+                    println!("{:#?}", store.series);
                 }
             }
         }
