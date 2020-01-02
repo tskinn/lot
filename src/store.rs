@@ -75,49 +75,6 @@ impl MemoryVideoStore {
         let mut file = File::create(path)?;
         file.write(str_result.as_bytes())
     }
-
-    // pub fn add_episode(&mut self, path: PathBuf, series: String, season: usize) -> std::io::Result<()> {
-    //     let episode = Episode{
-    //         series: series.clone(),
-    //         season: season,
-    //         file: path.to_str().unwrap_or("").to_string(),
-    //         path: path.to_str().unwrap_or("").to_string(),
-    //         mime: get_mime(path.extension().unwrap()),
-    //         id: nanoid::simple(),
-    //     };
-
-  
-    //     let filename = path.file_stem().ok_or(Error::new(ErrorKind::Other, "failed to get stem"))?;
-    //     let filename = filename.to_str().ok_or(Error::new(ErrorKind::Other, "failed to change ostr to str"))?;
-    //     let filename_usize = filename.parse::<usize>().unwrap();
-
-    //     let seasons = self.series.entry(series).or_insert(HashMap::new());
-    //     let season = seasons.entry(season).or_insert(HashMap::new());
-    //     season.insert(filename_usize, episode);
-
-    //     Ok(())
-    // }
-
-    // pub fn add_movie(&mut self, path: PathBuf) -> std::io::Result<()> {
-    //     let id = nanoid::simple();
-    //     let mime = get_mime(path.extension().unwrap_or(OsStr::new("")));
-    //     let movie_name = path.file_stem().ok_or(Error::new(ErrorKind::Other, "no filename!"))?.to_str().ok_or(Error::new(ErrorKind::Other, "crap me  river"))?;
-
-    //     let movie = Movie{
-    //         file: path.to_str().unwrap_or("").to_string(),
-    //         path: path.to_str().unwrap_or("").to_string(),
-    //         mime: mime,
-    //         title: movie_name.to_string(),
-    //         id: id.clone(),
-    //     };
-
-    //     self.movies.insert(id, movie);
-    //     Ok(())
-    // }
-
-    // pub fn delete_movie(&mut self, id: String) {
-    //     self.movies.remove(&id);
-    // }
 }
 
 pub fn get_mime(extension: &OsStr) -> String {
@@ -127,9 +84,11 @@ pub fn get_mime(extension: &OsStr) -> String {
     }
 }
 
-pub fn add_episode(path: PathBuf, series: String, season: usize, store: &mut impl VideoStore) -> std::io::Result<()> {
-    let filename = path.file_stem().ok_or(Error::new(ErrorKind::Other, "failed to get stem"))?;
-    let filename = filename.to_str().ok_or(Error::new(ErrorKind::Other, "failed to change ostr to str"))?;
+
+
+pub fn add_episode(path: PathBuf, series: String, season: usize, store: &mut impl VideoStore) -> Result<(), String> {
+    let filename = path.file_stem().ok_or("failed to get file stem".to_string())?;
+    let filename = filename.to_str().ok_or("failed to get filename as string".to_string())?;
     let filename_usize = filename.parse::<usize>().unwrap();
 
     let episode = Episode{
@@ -142,14 +101,14 @@ pub fn add_episode(path: PathBuf, series: String, season: usize, store: &mut imp
         number: filename_usize,
     };
 
-    store.add_episode(episode);
+    store.add_episode(episode)?;
     Ok(())
 }
 
-pub fn add_movie(path: PathBuf, store: &mut impl VideoStore) -> std::io::Result<()> {
+pub fn add_movie(path: PathBuf, store: &mut impl VideoStore) -> Result<(), String> {
     let id = nanoid::simple();
     let mime = get_mime(path.extension().unwrap_or(OsStr::new("")));
-    let movie_name = path.file_stem().ok_or(Error::new(ErrorKind::Other, "no filename!"))?.to_str().ok_or(Error::new(ErrorKind::Other, "crap me  river"))?;
+    let movie_name = path.file_stem().ok_or("failed to get file stem".to_string())?.to_str().ok_or("failed to get stem as str")?;
 
     let movie = Movie{
         file: path.to_str().unwrap_or("").to_string(),
@@ -159,6 +118,5 @@ pub fn add_movie(path: PathBuf, store: &mut impl VideoStore) -> std::io::Result<
         id: id.clone(),
     };
 
-    store.add_movie(movie);
-    Ok(())
+    store.add_movie(movie)
 }

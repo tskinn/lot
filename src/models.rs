@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::path::PathBuf;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct MemoryVideoStore {
@@ -8,10 +7,6 @@ pub struct MemoryVideoStore {
     //    pub series: Series
     pub episodes: HashMap<String, Episode>,
 }
-
-pub type Movies = HashMap<String, Movie>;
-pub type Episodes = HashMap<String, Episode>;
-pub type Series = HashMap<String, HashMap<usize, HashMap<usize, Episode>>>;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Movie {

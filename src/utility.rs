@@ -65,33 +65,30 @@ fn main() {
     let args = Util::from_args();
     let json_path = args.json_path.clone();
     println!("{:#?}", args);
+    let mut store = match MemoryVideoStore::from_file(&json_path) {
+        Ok(store) => store,
+        Err(_) => {
+            MemoryVideoStore::new()
+        }
+    };
+    
     match args.command {
-        SubCommand::Movie(movie) => {
+        SubCommand::Movie(movie) => {            
             match movie.action {
                 MovieAction::Add{movie_paths} => {
-                    let mut store = MemoryVideoStore::from_file(&json_path).unwrap();
                     store::add_movie(movie_paths.first().unwrap().to_path_buf(), &mut store).unwrap();
                     // store.add_movie(movie_paths.first().unwrap().to_path_buf()).unwrap();
                     store.to_file(&json_path).unwrap();
                     println!("{:?}", movie_paths);
                 },
                 MovieAction::List => {
-                    let store = MemoryVideoStore::from_file(&json_path).unwrap();
-                    println!("{:#?}", store);
+                    println!("{:#?}", store.movies);
                 }
             }
         },
         SubCommand::Episode(episode) => {
             match episode.action {
                 EpisodeAction::Add{episode_paths} => {
-                    println!("{:?}", episode_paths);
-                    let mut store = match MemoryVideoStore::from_file(&json_path) {
-                        Ok(store) => store,
-                        Err(_) => {
-                            MemoryVideoStore::new()
-                        }
-                    };
-
                     // TODO for loop over episode_paths
                     match store::add_episode(episode_paths.first().unwrap().to_path_buf(), episode.series, episode.season, &mut store) {
                         Ok(_) => {
@@ -104,7 +101,6 @@ fn main() {
                     println!("{:#?}", store);
                 },
                 EpisodeAction::List => {
-                    let store = MemoryVideoStore::from_file(&json_path).unwrap();
                     println!("{:#?}", store.episodes);
                 }
             }
