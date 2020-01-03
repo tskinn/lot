@@ -1,5 +1,5 @@
 use actix_files::NamedFile;
-//use actix_cors::Cors;
+use actix_cors::Cors;
 use actix_web::{
     client, dev::RequestHead, get, web, App, Error, HttpRequest,
     HttpServer, Responder, HttpResponse
@@ -78,6 +78,11 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
+            .wrap(
+                Cors::new() // <- Construct CORS middleware builder
+                    .send_wildcard()
+                    .max_age(3600)
+                    .finish())
             .data(data.clone())
             .service(web::scope("/movies")
                      .route("/", web::get().to(list_movies))

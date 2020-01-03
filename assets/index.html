@@ -1,0 +1,101 @@
+<html>
+		<head>
+		</head>
+		<body>
+				<video id="video" controls >
+						<source id="video_source" src="/media/examples/flower.mp4" type="video/mp4">
+						Sorry, your browser doesn't support embedded videos.
+				</video>
+				<br>
+				address
+				<br>
+				<input type="text" id="address" name="address">
+				<br>
+				episode
+				<br>
+				<input type="text" id="episode" name="episode">
+				<br>
+				movie
+				<br>
+				<input type="text" id="movie" name="movie">
+				<br>
+
+				<br>
+				<button id="list_episodes">list episodes</button>
+				<br>
+				<button id="list_movies">list movies</button>
+				<br>
+				<button id="set_episode">play episode</button>
+				<br>
+				<button id="set_movie">play movie</button>
+				<br>
+				<pre id="results"></pre>
+				<br>
+
+
+
+				
+				<script>
+				 var episodesButton = document.getElementById("list_episodes");
+				 var moviesButton = document.getElementById("list_movies");
+				 var results = document.getElementById("results");
+				 var video = document.getElementById("video");
+				 var videoSource = document.getElementById("video_source");
+				 var addressInput = document.getElementById("address");
+				 var movieInput = document.getElementById("movie");
+				 var episodeInput = document.getElementById("episode");
+				 var episodeSet = document.getElementById("set_episode");
+				 var movieSet = document.getElementById("set_movie");
+
+
+				 movieSet.addEventListener('click', (event) => {
+						 console.log("play movie 1 ");
+						 videoSource.src = "http://" + addressInput.value + "/movies/" + movieInput.value;
+						 video.load();
+						 console.log("play movie 2");
+				 });
+
+				 episodeSet.addEventListener('click', (event) => {
+						 console.log("play episode 1 ");
+						 videoSource.src = "http://" + addressInput.value + "/episodes/" + episodeInput.value;
+						 video.load();
+						 console.log("play episode 2");
+				 });
+				 
+
+				 episodesButton.addEventListener('click', (event) => {
+						 var address = addressInput.value;
+						 console.log("hello");
+						 fetch("http://" + address + "/episodes/")
+								 .then((response) => {
+										 return response.json();										 
+								 })
+								 .then((myJson) => {
+										 var str = JSON.stringify(myJson, null, 2); // spacing level = 2
+										 results.innerHTML = str;
+										 console.log(str);
+
+										 console.log(myJson);
+								 });						 
+				 });
+
+
+				 moviesButton.addEventListener('click', (event) => {
+						 var address = addressInput.value;
+						 console.log("hello");
+						 fetch("http://" + address + "/movies/")
+								 .then((response) => {
+										 return response.json();										 
+								 })
+								 .then((myJson) => {
+										 var str = JSON.stringify(myJson, null, 2); // spacing level = 2
+										 results.innerHTML = str;
+										 console.log(str);
+
+										 console.log(myJson);
+								 });						 
+				 });				 
+				</script>
+
+		</body>
+</html>
