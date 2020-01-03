@@ -39,3 +39,8 @@ pub trait VideoStore {
     fn get_movie_by_id(&self, id: &str) -> Result<&Movie, String>;
     fn get_movie_all(&self) -> Result<Vec<&Movie>, String>;
 }
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Data<T> {
+    pub data: T
+}

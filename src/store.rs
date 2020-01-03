@@ -84,15 +84,13 @@ pub fn get_mime(extension: &OsStr) -> String {
     }
 }
 
-
-
-pub fn add_episode(path: PathBuf, series: String, season: usize, store: &mut impl VideoStore) -> Result<(), String> {
+pub fn add_episode(path: PathBuf, series: &str, season: usize, store: &mut impl VideoStore) -> Result<(), String> {
     let filename = path.file_stem().ok_or("failed to get file stem".to_string())?;
     let filename = filename.to_str().ok_or("failed to get filename as string".to_string())?;
     let filename_usize = filename.parse::<usize>().unwrap();
 
     let episode = Episode{
-        series: series.clone(),
+        series: series.to_string(),
         season: season,
         file: path.to_str().unwrap_or("").to_string(),
         path: path.to_str().unwrap_or("").to_string(),

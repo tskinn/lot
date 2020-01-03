@@ -1,5 +1,8 @@
 use structopt::StructOpt;
 use std::path::PathBuf;
+use std::collections::HashMap;
+
+use serde_json;
 
 #[macro_use] extern crate failure_derive;
 #[macro_use] extern crate failure;
@@ -7,7 +10,7 @@ use std::path::PathBuf;
 mod models;
 mod store;
 
-use models::{MemoryVideoStore, VideoStore};
+use models::{MemoryVideoStore, VideoStore, Data};
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "util")]
@@ -64,7 +67,7 @@ enum EpisodeAction {
 fn main() {
     let args = Util::from_args();
     let json_path = args.json_path.clone();
-    println!("{:#?}", args);
+    //println!("{:#?}", args);
     let mut store = match MemoryVideoStore::from_file(&json_path) {
         Ok(store) => store,
         Err(_) => {
@@ -76,32 +79,50 @@ fn main() {
         SubCommand::Movie(movie) => {            
             match movie.action {
                 MovieAction::Add{movie_paths} => {
-                    store::add_movie(movie_paths.first().unwrap().to_path_buf(), &mut store).unwrap();
-                    // store.add_movie(movie_paths.first().unwrap().to_path_buf()).unwrap();
+                    for movie_path in movie_paths {
+                        match store::add_movie(movie_path.to_path_buf(), &mut store) {
+                            Ok(_) => {},
+                            Err(e) => {
+                                println!("{}", e);
+                                println!("failed to add movie at {}", movie_path.to_str().unwrap_or("failed to unwrap movie_path"));
+                            }
+                        };
+                        
+                    }
                     store.to_file(&json_path).unwrap();
-                    println!("{:?}", movie_paths);
                 },
                 MovieAction::List => {
-                    println!("{:#?}", store.movies);
+                    let movies = store.movies;
+                    let data : Data<HashMap<String, models::Movie>> = Data{
+                        data: movies,
+                    };
+                    let res = serde_json::to_string(&data).unwrap();
+                    println!("{}", res);
                 }
             }
         },
         SubCommand::Episode(episode) => {
             match episode.action {
                 EpisodeAction::Add{episode_paths} => {
-                    // TODO for loop over episode_paths
-                    match store::add_episode(episode_paths.first().unwrap().to_path_buf(), episode.series, episode.season, &mut store) {
-                        Ok(_) => {
-                            store.to_file(&json_path).unwrap();
-                        },
-                        Err(err) => {
-                            println!("{}", err);
+                    for episode_path in episode_paths {
+                        match store::add_episode(episode_path.to_path_buf(), &episode.series, episode.season, &mut store) {
+                            Ok(_) => {},
+                            Err(err) => {
+                                println!("{}", err);
+                                println!("failed to add episode at {}", episode_path.to_str().unwrap_or("failed to unwrap episode_path"));
+                            }
                         }
+
                     }
-                    println!("{:#?}", store);
+                    store.to_file(&json_path).unwrap();
                 },
                 EpisodeAction::List => {
-                    println!("{:#?}", store.episodes);
+                    let episodes = store.episodes;
+                    let data : Data<HashMap<String, models::Episode>> = Data{
+                        data: episodes,
+                    };
+                    let res = serde_json::to_string(&data).unwrap();
+                    println!("{}", res);
                 }
             }
         }
