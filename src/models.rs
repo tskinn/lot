@@ -1,12 +1,21 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::sync::Arc;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct MemoryVideoStore {
+pub struct JsonVideoStore {
     pub movies: HashMap<String, Movie>,
-    //    pub series: Series
     pub episodes: HashMap<String, Episode>,
 }
+
+// pub struct VideoService {
+//     pub movies_by_id: HashMap<String, Arc<Movie>>,
+//     pub movies_by_title: Vec<(String, String)>,
+//     pub movies_id_by_genre: HashMap<usize, Vec<String>>,
+
+//     pub episodes_by_id: HashMap<String, Episode>,
+//     pub episodes_by_season: HashMap<String, HashMap<usize, Vec<String>>>,
+// }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Movie {
@@ -18,10 +27,27 @@ pub struct Movie {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ResponseMovie {
+    pub mime: String,
+    pub title: String,
+    pub id: String,
+}
+
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Episode {
     pub file: String,
     pub mime: String,
     pub path: String,
+    pub season: usize,
+    pub series: String,
+    pub id: String,
+    pub number: usize,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ResponseEpisode {
+    pub mime: String,
     pub season: usize,
     pub series: String,
     pub id: String,

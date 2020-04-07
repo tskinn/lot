@@ -10,7 +10,7 @@ use serde_json;
 mod models;
 mod store;
 
-use models::{MemoryVideoStore, VideoStore, Data};
+use models::{JsonVideoStore, VideoStore, Data};
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "util")]
@@ -68,10 +68,10 @@ fn main() {
     let args = Util::from_args();
     let json_path = args.json_path.clone();
     //println!("{:#?}", args);
-    let mut store = match MemoryVideoStore::from_file(&json_path) {
+    let mut store = match JsonVideoStore::from_file(&json_path) {
         Ok(store) => store,
         Err(_) => {
-            MemoryVideoStore::new()
+            JsonVideoStore::new()
         }
     };
     

@@ -11,9 +11,9 @@ use nanoid;
 // errors can be created from strings
 //let custom_error = Error::new(ErrorKind::Other, "oh no!");
 
-use crate::models::{MemoryVideoStore,Episode,Movie,VideoStore};
+use crate::models::{JsonVideoStore,Episode,Movie,VideoStore};
 
-impl VideoStore for MemoryVideoStore {
+impl VideoStore for JsonVideoStore {
     fn add_episode(&mut self, episode: Episode) -> Result<(), String> {
         self.episodes.insert(episode.id.clone(), episode);
         Ok(())
@@ -53,9 +53,9 @@ impl VideoStore for MemoryVideoStore {
     }    
 }
 
-impl MemoryVideoStore {
+impl JsonVideoStore {
     pub fn new() -> Self {
-        MemoryVideoStore{
+        JsonVideoStore{
             movies: HashMap::new(),
             episodes: HashMap::new()
         }
