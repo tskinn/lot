@@ -11,7 +11,33 @@ pub trait tMDB {
 }
 
 
+#[derive(Debug,PartialEq,Deserialize,Serialize)]
+pub struct Collection {
+		pub id: u64,
+		pub name: String,
+		pub overview: String,
+		pub poster_path: Option<String>,
+		pub backdrop_path: Option<String>,
+		pub parts: Vec<CollectionPart>,
+}
 
+#[derive(Debug,PartialEq,Deserialize,Serialize)]
+pub struct CollectionPart {
+		pub adult: bool,
+		pub backdrop_path: String,
+		pub genre_ids: Vec<u64>,
+		pub id: u64,
+		pub original_language: String,
+		pub original_title: String,
+		pub overview: String,
+		pub popularity: f64,
+		pub poster_path: String,
+		pub release_date: String,
+		pub title: String,
+		pub video: bool,
+		pub vote_average: f64,
+		pub vote_count: u64,
+}
 
 #[derive(Debug,PartialEq,Deserialize,Serialize)]
 pub struct Genre {
@@ -114,6 +140,12 @@ pub struct ProductionCompany {
 }
 
 #[derive(Debug,PartialEq,Deserialize,Serialize)]
+pub struct ProductionCountry {
+		pub iso_3166_1: String,
+		name: String,
+}
+
+#[derive(Debug,PartialEq,Deserialize,Serialize)]
 pub struct Network {
     pub id: u64,
     pub logo_path: Option<String>,
@@ -152,6 +184,43 @@ pub struct Movie {
     pub adult: bool,
     pub videos: Option<Results<Video>>,
     pub credits: Option<Credits>,
+}
+
+#[derive(Debug,PartialEq,Deserialize,Serialize)]
+pub struct MovieDetail {
+		pub adult: bool,
+		pub backdrop_path: String,
+		pub belongs_to_collection: Option<BelongsToCollection>,
+		pub budget: u64,
+		pub genres: Vec<Genre>,
+		pub homepage: Option<String>,
+		pub id: u64,
+		pub imdb_id: Option<String>,
+		pub original_language: String,
+		pub original_title: String,
+		pub overview: Option<String>,
+		pub popularity: f64,
+		pub poster_path: Option<String>,
+		pub production_companies: Vec<ProductionCompany>,
+		pub production_countries: Vec<ProductionCountry>,
+		pub release_date: String,
+		pub revenue: u64,
+		pub runtime: Option<u64>,
+		pub spoken_languages: Vec<ProductionCountry>,
+		pub status: String,
+		pub tagline: Option<String>,
+		pub title: String,
+		pub video: bool,
+		pub vote_average: f64,
+		pub vote_count: u64,
+}
+
+#[derive(Debug,PartialEq,Deserialize,Serialize)]
+pub struct BelongsToCollection {
+		pub id: u64,
+		pub name: String,
+		pub poster_path: String,
+		pub backdrop_path: String,
 }
 
 #[derive(Debug,PartialEq,Deserialize,Serialize)]
