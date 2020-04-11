@@ -70,3 +70,4 @@ pub trait VideoStore {
 pub struct Data<T> {
     pub data: T
 }
+

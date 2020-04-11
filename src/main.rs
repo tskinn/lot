@@ -29,34 +29,53 @@ async fn counter_read(data: web::Data<Mutex<Arc<usize>>>) -> impl Responder {
     format!("{}", val)
 }
 
-async fn stream_movie(req: HttpRequest, data: web::Data<models::JsonVideoStore>) -> actix_web::Result<actix_files::NamedFile> {
+async fn stream_movie(req: HttpRequest, data: web::Data<Mutex<Arc<models::JsonVideoStore>>>) -> actix_web::Result<actix_files::NamedFile> {
     let id: String = req.match_info().query("id").parse().unwrap();
-    println!("streaming movie id {}", id);
-    let movie = data.movies.get(&id).ok_or(actix_web::HttpResponse::new(StatusCode::from_u16(400).unwrap()))?;
+    let store: Arc<models::JsonVideoStore>;
+    {
+        store = data.lock().unwrap().clone();
+    }
 
+    println!("streaming movie id {}", id);
+    let movie = store.movies.get(&id).ok_or(actix_web::HttpResponse::new(StatusCode::from_u16(400).unwrap()))?;
     Ok(actix_files::NamedFile::open(movie.path.clone())?)
 }
 
-async fn list_episodes(data: web::Data<models::JsonVideoStore>) -> actix_web::Result<HttpResponse> {
+async fn list_episodes(data: web::Data<Mutex<Arc<models::JsonVideoStore>>>) -> actix_web::Result<HttpResponse> {
     println!("List Episodes");
+    let store: Arc<models::JsonVideoStore>;
+    {
+        store = data.lock().unwrap().clone();
+    }
+    
     let resp = Data{
-        data: data.get_episode_all().unwrap()
+        data: store.get_episode_all().unwrap()
     };
     Ok(HttpResponse::Ok().json(resp))
 }
 
-async fn list_movies(data: web::Data<models::JsonVideoStore>) -> actix_web::Result<HttpResponse> {
+async fn list_movies(data: web::Data<Mutex<Arc<models::JsonVideoStore>>>) -> actix_web::Result<HttpResponse> {
     println!("List Movies");
+    let store: Arc<models::JsonVideoStore>;
+    {
+        store = data.lock().unwrap().clone();
+    }
+    
     let resp = Data{
-        data: data.get_movie_all().unwrap()
+        data: store.get_movie_all().unwrap()
     };
     Ok(HttpResponse::Ok().json(resp))
 }
 
-async fn stream_episode(req: HttpRequest, data: web::Data<models::JsonVideoStore>) -> actix_web::Result<actix_files::NamedFile> {
+async fn stream_episode(req: HttpRequest, data: web::Data<Mutex<Arc<models::JsonVideoStore>>>) -> actix_web::Result<actix_files::NamedFile> {
     let id: String = req.match_info().query("id").parse().unwrap();
-    let episode = data.episodes.get(&id).ok_or(actix_web::HttpResponse::new(StatusCode::from_u16(400).unwrap()))?;
 
+    let store: Arc<models::JsonVideoStore>;
+    {
+        store = data.lock().unwrap().clone();
+    }
+
+    let episode = store.episodes.get(&id).ok_or(actix_web::HttpResponse::new(StatusCode::from_u16(400).unwrap()))?;
     Ok(actix_files::NamedFile::open(episode.path.clone())?)
 }
 
@@ -88,16 +107,16 @@ async fn main() -> std::io::Result<()> {
             return Ok(());
         }
     };
+    let data = web::Data::new(Mutex::new(Arc::new(data)));
     let counter = web::Data::new(Mutex::new(Arc::new(0usize)));
     HttpServer::new(move || {
-
         App::new()
             .wrap(
                 Cors::new() // <- Construct CORS middleware builder
                     .send_wildcard()
                     .max_age(3600)
                     .finish())
-            .data(data.clone())
+            .app_data(data.clone())
             .app_data(counter.clone())
             .service(web::scope("/movies")
                      .route("", web::get().to(list_movies))                     
