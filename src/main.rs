@@ -4,11 +4,14 @@ use actix_web::{
     client, dev::RequestHead, get, web, App, Error, HttpRequest,
     HttpServer, Responder, HttpResponse
 };
+use actix_web::body::Body;
 use std::sync::{Mutex,RwLock,Arc};
 use std::path::{PathBuf, Path};
 use http::StatusCode;
 use clap;
 use std::borrow::Borrow;
+use std::borrow::Cow;
+use rust_embed::RustEmbed;
 
 mod store;
 mod models;
@@ -17,6 +20,23 @@ use models::{VideoStore,Data};
 
 async fn index() -> impl Responder {
     format!("check")
+}
+
+#[derive(RustEmbed)]
+#[folder = "assets/"]
+struct Asset;
+
+fn player_site(req: HttpRequest) -> HttpResponse {
+		match Asset::get("index.html") {
+				Some(content) => {
+						let body: Body = match content {
+								Cow::Borrowed(bytes) => bytes.into(),
+								Cow::Owned(bytes) => bytes.into(),
+						};
+						return HttpResponse::Ok().body(body);
+				}
+				None => HttpResponse::NotFound().body("404 Not Found")
+		}
 }
 
 async fn counter_read(data: web::Data<Mutex<Arc<usize>>>) -> impl Responder {
@@ -118,6 +138,8 @@ async fn main() -> std::io::Result<()> {
                     .finish())
             .app_data(data.clone())
             .app_data(counter.clone())
+						.service(web::scope("/player")
+										 .route("", web::get().to(player_site)))
             .service(web::scope("/movies")
                      .route("", web::get().to(list_movies))                     
                      .route("/", web::get().to(list_movies))

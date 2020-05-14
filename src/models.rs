@@ -33,7 +33,6 @@ pub struct ResponseMovie {
     pub id: String,
 }
 
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Episode {
     pub file: String,

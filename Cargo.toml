@@ -19,6 +19,7 @@ nanoid = "0.2.0"
 http = "0.2.0"
 clap = "2.33.0"
 actix-cors = "0.2.0"
+rust-embed = "5.5.1"
 
 [[bin]]
 name = "server"
