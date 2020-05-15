@@ -15,8 +15,8 @@ use models::{JsonVideoStore, VideoStore, Data};
 #[derive(StructOpt, Debug)]
 #[structopt(name = "util")]
 struct Util {
-    #[structopt(short, long, parse(from_os_str))]    
-    json_path: PathBuf,
+    #[structopt(default_value = "store.json", short, long, parse(from_os_str))]    
+    store: PathBuf,
     #[structopt(subcommand)]
     command: SubCommand,
 }
@@ -66,7 +66,7 @@ enum EpisodeAction {
 
 fn main() {
     let args = Util::from_args();
-    let json_path = args.json_path.clone();
+    let json_path = args.store.clone();
     //println!("{:#?}", args);
     let mut store = match JsonVideoStore::from_file(&json_path) {
         Ok(store) => store,

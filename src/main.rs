@@ -26,7 +26,7 @@ async fn index() -> impl Responder {
 #[folder = "assets/"]
 struct Asset;
 
-fn player_site(req: HttpRequest) -> HttpResponse {
+fn player_site() -> HttpResponse {
 		match Asset::get("index.html") {
 				Some(content) => {
 						let body: Body = match content {
@@ -110,9 +110,9 @@ async fn main() -> std::io::Result<()> {
              .default_value("127.0.0.1:8080")
              .takes_value(true)
              .help("address to listen on. 127.0.0.1:8080"))
-        .arg(clap::Arg::with_name("path")
-             .short("p")
-             .long("path")
+        .arg(clap::Arg::with_name("store")
+             .short("s")
+             .long("store")
              .required(true)
              .takes_value(true)
              .help("path to json file with video info")).get_matches();
